@@ -1,0 +1,13 @@
+project:
+  name: apacheofbizconatiner
+  regions:
+    - us-east-1
+    - us-east-2
+    - ap-south-1
+tests:
+  ofbiz-test:
+    parameters:
+     AllowedCidrrange: 0.0.0.0/0
+     Cpu: 1024
+     memory: 2048
+    template: ApacheOFBizContainerSolutions.yaml
