@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPC with public and private subnets'
+
+Parameters:
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 192.168.0.0/16
+
+  PublicSubnetCIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet 
+    Type: String
+    Default: 192.168.1.0/24
+  
+  AllowedCidrrange:
+    Type: String
+    Description: Please set CIDR to x.x.x.x/32 to allow one specific IP address access, 0.0.0.0/0 to allow all IP addresses access, or another CIDR range for application access
+  Cpu:
+    Type: Number
+    Description: Please enter the CPU units for the task
+    Default: 512
+    MinValue: 128
+    MaxValue: 4096
+    ConstraintDescription: Please enter a value between 128 and 4096
+  memory:
+    Type: Number
+    Description: Please enter the memory for the task
+    Default: 1024
+    MinValue: 512
+    MaxValue: 30720
+    ConstraintDescription: Please enter a value between 512 and 30720
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: "VPC Configuration"
+        Parameters:
+          - VpcCIDR
+          - PublicSubnetCIDR
+          - AllowedCidrrange
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://containersolutionsformarketplace.s3.amazonaws.com/vpc.yaml
+      Parameters:
+        VpcCIDR: !Ref VpcCIDR
+        PublicSubnetCIDR: !Ref PublicSubnetCIDR
+        AllowedCidrrange: !Ref AllowedCidrrange
+  
+  Cluster:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://containersolutionsformarketplace.s3.amazonaws.com/ecs.yaml
+      Parameters:
+        VPC: !GetAtt VPC.Outputs.VPC
+        PublicSubnet: !GetAtt VPC.Outputs.PublicSubnet 
+        AllowedCidrrange: !Ref AllowedCidrrange                  
+        Cpu: !Ref Cpu
+        memory: !Ref memory
